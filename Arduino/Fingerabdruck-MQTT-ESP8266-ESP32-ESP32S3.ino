@@ -60,15 +60,15 @@ void setup()
   delay(5);
 
   if (finger.verifyPassword()) {
-    Serial.println("Found fingerprint sensor!");
+    Serial.println("\n\nFound fingerprint sensor!");
   } else {
-    Serial.println("Did not find fingerprint sensor :(");
+    Serial.println("\n\nDid not find fingerprint sensor :(");
     while (1) { delay(1); }
   }
 
   WiFi.mode(WIFI_STA);
   WiFi.begin(SSID, PASSWORD);
-  Serial.print("Connecting...");
+  Serial.print("\n\nConnecting...");
 
   while (WiFi.status() != WL_CONNECTED) {       // Wait till Wifi connected
     delay(500);
@@ -76,7 +76,7 @@ void setup()
   }
   Serial.println();
 
-  Serial.print("Connected, IP address: ");
+  Serial.print("\n\nConnected, IP address: ");
   Serial.println(WiFi.localIP());                     // Print IP address
 
   client.setServer(MQTT_SERVER, 1883);                // Set MQTT server and port number
@@ -93,7 +93,7 @@ void loop()                     // run over and over again
     if (modeReading == true && modeLearning == false) {
     uint8_t result = getFingerprintID();
     if (result == FINGERPRINT_OK) {
-      mqttMessage["mode"] = "reading";
+      mqttMessage["mode"] = "Reading";
       mqttMessage["id"] = lastID;
       mqttMessage["state"] = "Matched";
       mqttMessage["confidence"] = lastConfidenceScore;
@@ -102,7 +102,7 @@ void loop()                     // run over and over again
       lastMQTTmsg = millis();
       delay(500);
     } else if (result == FINGERPRINT_NOTFOUND) {
-      mqttMessage["mode"] = "reading";
+      mqttMessage["mode"] = "Reading";
       mqttMessage["match"] = false;
       mqttMessage["id"] = id;
       mqttMessage["state"] = "Not matched";
@@ -112,7 +112,7 @@ void loop()                     // run over and over again
       delay(500);
     } else if (result == FINGERPRINT_NOFINGER) {
 	    if ((millis() - lastMQTTmsg) > MQTT_INTERVAL){
-		    mqttMessage["mode"] = "reading";
+		    mqttMessage["mode"] = "Reading";
 		    mqttMessage["id"] = id;
 		    mqttMessage["state"] = "Waiting";
 		    size_t mqttMessageSize = serializeJson(mqttMessage, mqttBuffer);
@@ -205,7 +205,7 @@ uint8_t getFingerprintID() {
 
 uint8_t getFingerprintEnroll() {
   int p = -1;
-  mqttMessage["mode"] = "learning";
+  mqttMessage["mode"] = "Learning";
   mqttMessage["id"] = id;
   mqttMessage["state"] = "Place finger..";
   size_t mqttMessageSize = serializeJson(mqttMessage, mqttBuffer);
@@ -258,7 +258,7 @@ uint8_t getFingerprintEnroll() {
       return p;
   }
 
-  mqttMessage["mode"] = "learning";
+  mqttMessage["mode"] = "Learning";
   mqttMessage["id"] = id;
   mqttMessage["state"] = "Remove finger..";
   mqttMessageSize = serializeJson(mqttMessage, mqttBuffer);
@@ -271,7 +271,7 @@ uint8_t getFingerprintEnroll() {
   }
   Serial.print("ID "); Serial.println(id);
   p = -1;
-  mqttMessage["mode"] = "learning";
+  mqttMessage["mode"] = "Learning";
   mqttMessage["id"] = id;
   mqttMessage["state"] = "Place same finger..";
   mqttMessageSize = serializeJson(mqttMessage, mqttBuffer);
@@ -344,7 +344,7 @@ uint8_t getFingerprintEnroll() {
   Serial.print("ID "); Serial.println(id);
   p = finger.storeModel(id);
   if (p == FINGERPRINT_OK) {
-    mqttMessage["mode"] = "learning";
+    mqttMessage["mode"] = "Learning";
     mqttMessage["id"] = id;
     mqttMessage["state"] = "Success, stored!";
     mqttMessageSize = serializeJson(mqttMessage, mqttBuffer);
